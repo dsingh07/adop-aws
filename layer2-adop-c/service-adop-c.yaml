@@ -116,8 +116,23 @@ Resources:
       - DeviceName: /dev/sda1
         Ebs:
           DeleteOnTermination: 'true'
-          VolumeSize: 50
+          VolumeSize: 25
           VolumeType: gp2
+      - DeviceName: /dev/sdf
+        Ebs:
+          DeleteOnTermination: 'false'
+          VolumeType: gp2
+          VolumeSize: 15
+      - DeviceName: /dev/sdg
+        Ebs:
+          DeleteOnTermination: 'false'
+          VolumeType: gp2
+          VolumeSize: 25
+      - DeviceName: /dev/sdh
+        Ebs:
+          DeleteOnTermination: 'false'
+          VolumeType: gp2
+          VolumeSize: 25
       ImageId:
         Fn::FindInMap:
         - RegionMap
@@ -160,8 +175,14 @@ Resources:
           gpgcheck=1
           gpgkey=https://yum.dockerproject.org/gpg
           EOF
-          yum -y install wget unzip git docker-engine
+          yum -y install wget unzip git lvm2 docker-engine
           grep 'tcp://0.0.0.0:2375' /usr/lib/systemd/system/docker.service || sed -i 's#ExecStart\(.*\)$#ExecStart\1 -H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375#' /usr/lib/systemd/system/docker.service
+          pvcreate /dev/xvdh
+          vgcreate vg-docker /dev/xvdh
+          while [ $(lvs vg-docker/data &> /dev/null; echo $?) -ne 0 ]; do lvcreate -l 95%VG -n data vg-docker; done
+          while [ $(lvs vg-docker/metadata &> /dev/null; echo $?) -ne 0 ]; do lvcreate -l 5%VG -n metadata vg-docker; done
+          lvcreate -l 95%VG -n data vg-docker
+          lvcreate -l 5%VG -n metadata vg-docker
           systemctl daemon-reload && systemctl enable docker && systemctl restart docker
           
           echo '==============================================================================='
@@ -217,7 +238,7 @@ Resources:
     Properties:
       Handle:
         Ref: ADOP5WaitConditionHandle
-      Timeout: 1400
+      Timeout: 1500
 
 Outputs:
   ReleaseNote:
