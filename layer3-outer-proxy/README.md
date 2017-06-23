@@ -20,6 +20,8 @@ Upload your certificates to the AWS certificate manager service in your region.
 3. Copy the certificate private RSA key into the "Certificate private key" text field.
 4. Take note of the Amazon Resource Name (ARN) for the uploaded certificate as this is required to assign the x509 certificates to the Elastic Load Balancer (ELB) for the public reverse proxy.
 
+#### For assistance with generating self-signed certificates and uploading them to AWS certificate manager, please refer to the [auxiliary scripts here](https://github.com/Accenture/adop-docker-compose/tree/master/provision/aws/ssl)
+
 ## Deployment Instructions
 
 The following provides a high-level overview of the steps required to deploy the outer proxy service.
