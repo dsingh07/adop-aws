@@ -258,6 +258,8 @@ Resources:
           sed -i s/${AdopUserPassword}/AdopUserPassword/g /var/lib/cloud/instance/scripts/part-001
           sed -i s/${AdopUsername}/AdopUsername/g /var/log/cloud-init.log
           sed -i s/${AdopUserPassword}/AdopUserPassword/g /var/log/cloud-init.log
+          sed -i s/${AdopUsername}/AdopUsername/g /var/log/cloud-init-output.log
+          sed -i s/${AdopUserPassword}/AdopUserPassword/g /var/log/cloud-init-output.log
           
           echo "=========================== ADOP-C setup complete ==========================="
           curl -X PUT -H 'Content-Type:' --data-binary '{"Status": "SUCCESS","Reason": "ADOP Gen 5 is ready","UniqueId": "ADOP5Ec2Instance","Data": "Done"}' "${ADOP5WaitConditionHandle}"

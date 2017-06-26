@@ -9,7 +9,7 @@ The template here creates lambda function for creating EBS backups
 1. Navigate to the AWS CloudFormation service in your preferred AWS region.
 2. Create Stack.
 3. Choose template and upload the `ebs-backup-lambda-function.yaml` template.
-4. Complete the required parameters. See `CloudFormation` section of the readme for more descriptive parameter definitions.
+4. Complete the required parameters. See `Inputs` section of the readme for more descriptive parameter definitions.
 5. On successful stack creation, the lambda function for ebs backup has been created and scheduled.
 
 ### Inputs

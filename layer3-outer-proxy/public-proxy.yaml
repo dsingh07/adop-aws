@@ -79,6 +79,17 @@ Parameters:
       S3 Bucket region.
     Type: String
     Default: ""
+  NtpRegion:
+    Description: |
+      The geographical NTP region where your NTP server is located (can be a continent or a country). 
+      This will appear in your /etc/ntp.conf file such as "server [1:4].<NtpRegion>.pool.ntp.org".
+      Please refer here http://www.pool.ntp.org/en/
+    Type: String
+    Default: europe
+  HostOs:
+    Description: The operating system family of your host
+    Type: String
+    Default: centos
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -110,6 +121,12 @@ Metadata:
           - NATGatewayIdEipIP1
           - NATGatewayIdEipIP2
           - VpnSecurityGroup
+      -
+        Label:
+          default: NTP Configuration
+        Parameters:
+          - NtpRegion
+          - HostOs
     ParameterLabels:
       BaseVpcId:
         default: "Base VPC ID"
@@ -368,7 +385,16 @@ Resources:
           gpgkey=https://yum.dockerproject.org/gpg
           EOF
 
-          yum -y install lvm2 git docker-engine-1.10.3-1.el7.centos.x86_64
+          yum -y install lvm2 git docker-engine-1.10.3-1.el7.centos.x86_64 ntp
+          
+          echo '################## Configuring NTP ##################'
+          sed -i "s/${HostOs}/${NtpRegion}/g" /etc/ntp.conf
+          systemctl start ntpd
+          systemctl enable ntpd
+          systemctl status ntpd
+          sleep 20
+          ntpq -p
+          ntpstat
 
           echo "################## Installing AWS CLI ##################"
 
