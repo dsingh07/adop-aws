@@ -23,6 +23,12 @@ Metadata:
           default: Instance Configuration
         Parameters:
           - KeyName
+      -
+        Label:
+          default: NTP Configuration
+        Parameters:
+          - NtpRegion
+          - HostOs
 
 Parameters:
   AdopUsername:
@@ -56,6 +62,17 @@ Parameters:
   KeyName:
     Description: Key-pair name to use. Make sure you choose a key which you have!
     Type: AWS::EC2::KeyPair::KeyName
+  NtpRegion:
+    Description: |
+      The geographical NTP region where your NTP server is located (can be a continent or a country). 
+      This will appear in your /etc/ntp.conf file such as "server [1:4].<NtpRegion>.pool.ntp.org".
+      Please refer here http://www.pool.ntp.org/en/
+    Type: String
+    Default: europe
+  HostOs:
+    Description: The operating system family of your host
+    Type: String
+    Default: centos
 
 Mappings:
   RegionMap:
@@ -175,7 +192,7 @@ Resources:
           gpgcheck=1
           gpgkey=https://yum.dockerproject.org/gpg
           EOF
-          yum -y install wget unzip git lvm2 docker-engine
+          yum -y install wget unzip git lvm2 docker-engine ntp
           grep 'tcp://0.0.0.0:2375' /usr/lib/systemd/system/docker.service || sed -i 's#ExecStart\(.*\)$#ExecStart\1 -H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375#' /usr/lib/systemd/system/docker.service
           pvcreate /dev/xvdh
           vgcreate vg-docker /dev/xvdh
@@ -185,6 +202,16 @@ Resources:
           lvcreate -l 5%VG -n metadata vg-docker
           systemctl daemon-reload && systemctl enable docker && systemctl restart docker
           
+          echo '=========================== Configuring NTP =========================='
+          sed -i "s/${HostOs}/${NtpRegion}/g" /etc/ntp.conf
+          systemctl start ntpd
+          systemctl enable ntpd
+          systemctl status ntpd
+          sleep 20
+          ntpq -p
+          ntpstat
+          
+
           echo '==============================================================================='
           echo '============================== Installing AWS CLI ============================='
           echo '==============================================================================='
@@ -225,6 +252,12 @@ Resources:
           until [[ $(curl -X GET -s ${!INITIAL_ADMIN_USER}:${!INITIAL_ADMIN_PASSWORD_PLAIN}@${!PRIVATE_IP}/jenkins/job/Load_Platform/lastBuild/api/json?pretty=true|grep result|cut -d$' ' -f5|sed 's|[^a-zA-Z]||g') == SUCCESS ]]; do echo "Load_Platform job not finished, sleeping for 5s"; sleep 5; done
           ./adop target set -t http://${!PRIVATE_IP} -u ${!INITIAL_ADMIN_USER} -p ${!INITIAL_ADMIN_PASSWORD_PLAIN}
           set +e
+
+          echo "##################### Sanitizing ADOP-C Cloud-Init logs #####################"
+          sed -i s/${AdopUsername}/AdopUsername/g /var/lib/cloud/instance/scripts/part-001
+          sed -i s/${AdopUserPassword}/AdopUserPassword/g /var/lib/cloud/instance/scripts/part-001
+          sed -i s/${AdopUsername}/AdopUsername/g /var/log/cloud-init.log
+          sed -i s/${AdopUserPassword}/AdopUserPassword/g /var/log/cloud-init.log
           
           echo "=========================== ADOP-C setup complete ==========================="
           curl -X PUT -H 'Content-Type:' --data-binary '{"Status": "SUCCESS","Reason": "ADOP Gen 5 is ready","UniqueId": "ADOP5Ec2Instance","Data": "Done"}' "${ADOP5WaitConditionHandle}"

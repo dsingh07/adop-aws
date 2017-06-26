@@ -17,9 +17,11 @@ In the AWS CloudFormation service launch the `service-adop-c.json'.
 | AdopUsername | ADOP admin account username. Username can not be set to 'admin' or 'Admin' and it must contain only letters and numbers. Minimum length is 3. |
 | AdopUserPassword | ADOP admin account password. Must be at least 8 characters long and contain at least one number, and cannot contain word "password" or your username | 
 | VpcID | VPC Id of where your instance will be created | 
-| VPCCidr | VPC Cidr range to allow connetion to the instance from within the VPC. | 
+| VPCCidr | VPC Cidr range to allow connection to the instance from within the VPC. | 
 | VPCSubnet | Private subnet ID of your stack (ensure a NAT gateway is attached) |
 | KeyName | Key-pair name to use. Note : Make sure you choose a key which you have. |
+| NtpRegion | The geographical NTP region where your NTP server is located (can be a continent or a country). This will appear in your /etc/ntp.conf file such as "server [1:4].<NtpRegion>.pool.ntp.org". Please refer here http://www.pool.ntp.org/en/ |
+| HostOs | The operating system family of your host e.g. centos, debian etc. This value will be substituted in your ntp.conf file during cloud-init. |
 
 # CloudFormation
 

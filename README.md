@@ -20,7 +20,7 @@ Pre-requisite CloudFormation scripts for;
 
 ## Layer 1
 
-Defines the base Infrastructure;
+Defines the base networking:
   * VPC
   * Public networking
   * Private networking
