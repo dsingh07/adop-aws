@@ -53,4 +53,4 @@ The following cost breakdown is based on the following assumptions. In reality t
 
 ![CostBreakdown](https://raw.githubusercontent.com/dsingh07/adop-c-hardened-aws/master/images/Cost_breakdown.PNG)
 
-We have used the [AWS Simple Monthly Calculator](https://calculator.s3.amazonaws.com) to work out all the estimates.
+We have used the [AWS Simple Monthly Calculator](https://calculator.s3.amazonaws.com/index.html) to work out all the estimates.
