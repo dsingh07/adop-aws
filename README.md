@@ -6,11 +6,12 @@ The CloudFormation templates in this repository implement the following network 
 
 # Architecture
 
-The architecture has been decomposed into three fine grained layers.
+The architecture has been decomposed into the following fine-grained layers.
  * Layer 1 - Base networking (VPC, Subnets)
  * Layer 2 - Private Services (ADOP/C)
  * Layer 3 - Public Proxy
  * Layer 4 - OpenVPN
+ * Layer 5 - Lambda Backups 
 
 
 ## Pre
@@ -36,3 +37,7 @@ Defines outer proxy service which supports the infrastructure.
 ## Layer 4
 
 Defines OpenVPN service which supports the infrastructure.
+
+## Layer 5
+
+Defines the Lambda service which backs up the underlying EBS data.
