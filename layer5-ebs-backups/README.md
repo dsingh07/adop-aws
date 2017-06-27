@@ -1,6 +1,6 @@
 # EBS Backup Lambda Function
 
-The template here creates the lambda function for creating EBS backups.
+The template here creates the lambda function for creating EBS backups. The template works by creating snapshots of EC2 instance volumes on a schedule provided decided by an input cron expression. Which instances to snapshot, are also decided by input parameters for the tag key and tag value of the EC2 instances.
 
 # Using this template 
 
@@ -17,8 +17,8 @@ The template here creates the lambda function for creating EBS backups.
 | Parameter | Description |
 |-----------|-------------|
 | LambdaFunctionName | The name of the Lambda function for EBS backup. |
-| EC2TagName | The tag name of the EC2 instance/s that will be backed up. | 
-| EC2TagValue | The tag value of the EC2 instance/s that will be backed up. | 
+| EC2TagName | The key name of tag attached to the EC2 instance/s that will be backed up. | 
+| EC2TagValue | The value of the tag attached to the EC2 instance/s that will be backed up. | 
 | EventRuleSchedule | The Cron expression to define when the Lambda function will run. Example: 'cron(0 23 * * ? *)'. | 
 | EventRuleScheduleName | The name of the event rule schedule that will be created. Example: 'run_every_day'. |
 | EventRuleScheduleDescription | The description of the event rule schedule that will be created. Example: 'Runs at 2300 every day' |

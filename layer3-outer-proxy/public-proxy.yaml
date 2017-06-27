@@ -3,7 +3,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
 Description: |
-  Layer 2 - Public Tier Outer Proxy Service
+  Layer 3 - Public Tier Outer Proxy Service
 
 Parameters:
   BaseVpcId:
@@ -15,10 +15,6 @@ Parameters:
     Description: |
       Comma-delimited list of public subnets.
     Type: List<AWS::EC2::Subnet::Id>
-  VpnSecurityGroup:
-    Description: |
-      Vpn Security Group for administrating EC2 instances (output from the OpenVPN service CloudFormation)
-    Type: AWS::EC2::SecurityGroup::Id
   SSLCertificateARN:
     Description: |
       ARN of the SSL certificate to use for the ELB. Note: ELB Offloads SSL for the outer proxy.
@@ -47,16 +43,11 @@ Parameters:
   InternalProxyDnsName:
     Type: String
     Description: |
-      The internal proxy DNS name/address (your ADOP/C proxy private IP)
+      The internal DNS name/address (your ADOP/C private IP)
     Default: ""
-  NATGatewayIdEipIP1:
+  WhitelistCIDR:
     Description: |
-      NAT Gateway Elastic IP IPv4 Address and Cidr 1 e.g. 54.1.1.1/32 (output of the public network CloudFormation)
-    Type: String
-    Default: ""
-  NATGatewayIdEipIP2:
-    Description: |
-      NAT Gateway Elastic IP IPv4 Address and Cidr 2 e.g. 54.2.3.4/32 (output of the public network CloudFormation)
+      The CIDR range from which access to the public ELB is restricted e.g. 54.1.1.1/32, 0.0.0.0
     Type: String
     Default: ""
   VpcAvailabilityZones:
@@ -114,9 +105,7 @@ Metadata:
         Label:
           default: "Security Groups"
         Parameters:
-          - NATGatewayIdEipIP1
-          - NATGatewayIdEipIP2
-          - VpnSecurityGroup
+          - WhitelistCIDR
       -
         Label:
           default: NTP Configuration
@@ -147,12 +136,8 @@ Metadata:
         default: "Proxy Config S3 Bucket name"
       ProxyConfigS3BucketRegion:
         default: "Proxy Config S3 Bucket region"
-      NATGatewayIdEipIP1:
-        default: "NAT Gateway ID 1 IP CIDR"
-      NATGatewayIdEipIP2:
-        default: "NAT Gateway ID 2 IP CIDR"
-      VpnSecurityGroup:
-        default: "VPN SG ID"
+      WhitelistCIDR:
+        default: "CIDR range from which public ELB can be accessed"
 
 Mappings:
   RegionMap:
@@ -160,16 +145,20 @@ Mappings:
       AMI: ami-9bf712f4
     eu-west-1:
       AMI: ami-7abd0209
+    eu-west-2:
+      AMI: ami-bb373ddf
     us-east-1:
       AMI: ami-6d1c2007
     us-west-2:
       AMI: ami-d2c924b2
     us-west-1:
       AMI: ami-af4333cf
+    ap-southeast-1:
+      AMI: ami-f068a193
     ap-southeast-2:
       AMI: ami-fedafc9d
-    eu-west-2:
-      AMI: ami-bb373ddf
+    ap-south-1:
+      AMI: ami-95cda6fa
 
 Resources:
   PublicElbSG:
@@ -184,25 +173,13 @@ Resources:
           FromPort: 80
           ToPort: 80
           CidrIp:
-            Ref: NATGatewayIdEipIP1
+            Ref: WhitelistCIDR
         -
           IpProtocol: tcp
           FromPort: 443
           ToPort: 443
           CidrIp:
-            Ref: NATGatewayIdEipIP1
-        -
-          IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp:
-            Ref: NATGatewayIdEipIP2
-        -
-          IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          CidrIp:
-            Ref: NATGatewayIdEipIP2
+            Ref: WhitelistCIDR
       Tags:
         -
           Key: "Name"
@@ -221,24 +198,6 @@ Resources:
       VpcId:
         Ref: BaseVpcId
       SecurityGroupIngress:
-        -
-          IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          SourceSecurityGroupId:
-            Ref: VpnSecurityGroup
-        -
-          IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          SourceSecurityGroupId:
-            Ref: VpnSecurityGroup
-        -
-          IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          SourceSecurityGroupId:
-            Ref: VpnSecurityGroup
         -
           IpProtocol: tcp
           FromPort: 80
@@ -310,7 +269,6 @@ Resources:
         - Action:
           - s3:GetObject
           - s3:ListBucket
-          Effect: Allow
           Resource:
           - Fn::Join:
             - ''
@@ -408,9 +366,9 @@ Resources:
           echo "################## Creating volumes ##################"
           pvcreate /dev/xvdb
           vgcreate vg-docker /dev/xvdb\n
-          lvcreate -l 95%VG -n data vg-docker
-          lvcreate -l 5%VG -n metadata vg-docker
-
+          while [ $(lvs vg-docker/data &> /dev/null; echo $?) -ne 0 ]; do lvcreate -l 95%VG -n data vg-docker; done
+          while [ $(lvs vg-docker/metadata &> /dev/null; echo $?) -ne 0 ]; do lvcreate -l 5%VG -n metadata vg-docker; done
+          
           echo "################## Configuring Docker Daemon ##################"
 
           sed -i 's/ExecStart\\(.*\\)$/ExecStart\\1 --storage-driver=devicemapper --storage-opt dm.datadev=\\/dev\\/vg-docker\\/data --storage-opt dm.metadatadev=\\/dev\\/vg-docker\\/metadata/g' /usr/lib/systemd/system/docker.service

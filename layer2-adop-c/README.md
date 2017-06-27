@@ -16,7 +16,7 @@ In the AWS CloudFormation service launch the `service-adop-c.json'.
 |-----------|-------------|
 | AdopUsername | ADOP admin account username. Username can not be set to 'admin' or 'Admin' and it must contain only letters and numbers. Minimum length is 3. |
 | AdopUserPassword | ADOP admin account password. Must be at least 8 characters long and contain at least one number, and cannot contain word "password" or your username | 
-| VpcID | VPC Id of where your instance will be created | 
+| VpcID | VPC ID where your instance will be created | 
 | VPCCidr | VPC Cidr range to allow connection to the instance from within the VPC. | 
 | VPCSubnet | Private subnet ID of your stack (ensure a NAT gateway is attached) |
 | KeyName | Key-pair name to use. Note : Make sure you choose a key which you have. |

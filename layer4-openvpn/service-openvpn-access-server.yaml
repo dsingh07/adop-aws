@@ -23,7 +23,7 @@ Parameters:
   InstanceType:
     Description: |
       The OpenVPN EC2 instance type.
-      It is recommend an instance type with support for enhanced networking is selected due to there support for high throughput and low network latency.
+      It is recommend an instance type with support for enhanced networking is selected given the advantage of high throughput and low network latency.
       See https://aws.amazon.com/ec2/instance-types/ for more information.
     Type: String
     Default: "m4.large"
@@ -100,12 +100,12 @@ Parameters:
           always
   LdapBindDn:
     Description: |
-      LDAP server Admin BindDn
+      LDAP server BindDn (by default for ADOP/C, this is cn=admin,dc=ldap,dc=example,dc=com)
     Default: "cn=admin,dc=ldap,dc=example,dc=com"
     Type: String
   LdapBindDnPassword:
     Description: |
-      LDAP server Admin bind DN password.
+      LDAP server Admin bind DN password (look at the system log from the ADOP/C EC2 instance from the EC2 console where LDAP_PWD should be echoed at the bottom of the log output)
     Type: String
     NoEcho: true
   LdapUsersBaseDn:

@@ -45,7 +45,7 @@ Parameters:
     AllowedPattern: (?!password|Password)[A-Za-z0-9]*([a-zA-Z]+[0-9]+|[0-9]+[a-zA-Z]+)
     ConstraintDescription: Password must contain only letters and numbers, it must contain at least one number, and cannot contain your username or word "password".
   VpcID:
-    Description: VPC ID of where your instance will be created
+    Description: VPC ID where your instance will be created
     Type: AWS::EC2::VPC::Id
   VPCCidr:
     Description: VPC Cidr range to allow connection to the instance from within the VPC.
@@ -75,16 +75,20 @@ Mappings:
       AMI: ami-9bf712f4
     eu-west-1:
       AMI: ami-7abd0209
+    eu-west-2:
+      AMI: ami-bb373ddf
     us-east-1:
       AMI: ami-6d1c2007
     us-west-2:
       AMI: ami-d2c924b2
     us-west-1:
       AMI: ami-af4333cf
+    ap-southeast-1:
+      AMI: ami-f068a193
     ap-southeast-2:
       AMI: ami-fedafc9d
-    eu-west-2:
-      AMI: ami-bb373ddf
+    ap-south-1:
+      AMI: ami-95cda6fa
 
 Resources:
 
@@ -173,8 +177,8 @@ Resources:
           Value: ADOP-C
         - Key: NetworkTier
           Value: private
-        - Key: "ServiceComponent"
-          Value: "ApplicationServer"
+        - Key: ServiceComponent
+          Value: ApplicationServer
       UserData:
         Fn::Base64: !Sub | 
           #!/bin/bash
@@ -252,15 +256,8 @@ Resources:
           echo '=========================== Setting up ADOP-C =========================='
           until [[ $(curl -X GET -s ${!INITIAL_ADMIN_USER}:${!INITIAL_ADMIN_PASSWORD_PLAIN}@${!PRIVATE_IP}/jenkins/job/Load_Platform/lastBuild/api/json?pretty=true|grep result|cut -d$' ' -f5|sed 's|[^a-zA-Z]||g') == SUCCESS ]]; do echo "Load_Platform job not finished, sleeping for 5s"; sleep 5; done
           ./adop target set -t http://${!PRIVATE_IP} -u ${!INITIAL_ADMIN_USER} -p ${!INITIAL_ADMIN_PASSWORD_PLAIN}
+          cat platform.secrets.sh
           set +e
-
-          echo '=========================== Sanitizing ADOP-C Cloud-Init logs '===========================
-          sed -i s/${AdopUsername}/AdopUsername/g /var/lib/cloud/instance/scripts/part-001
-          sed -i s/${AdopUserPassword}/AdopUserPassword/g /var/lib/cloud/instance/scripts/part-001
-          sed -i s/${AdopUsername}/AdopUsername/g /var/log/cloud-init.log
-          sed -i s/${AdopUserPassword}/AdopUserPassword/g /var/log/cloud-init.log
-          sed -i s/${AdopUsername}/AdopUsername/g /var/log/cloud-init-output.log
-          sed -i s/${AdopUserPassword}/AdopUserPassword/g /var/log/cloud-init-output.log
           
           echo "=========================== ADOP-C setup complete ==========================="
           curl -X PUT -H 'Content-Type:' --data-binary '{"Status": "SUCCESS","Reason": "ADOP Gen 5 is ready","UniqueId": "ADOP5Ec2Instance","Data": "Done"}' "${ADOP5WaitConditionHandle}"

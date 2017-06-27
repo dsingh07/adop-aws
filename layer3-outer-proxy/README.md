@@ -12,7 +12,7 @@ The base networking infrastructure deployed.
 
 ### Domain Creation & SSL Certificates
 
-Please setup a domain for the outer proxy service and self-signed SSL certificates (if you have not yet acquired certs from an approved certificate provider)
+Please setup a domain for the outer proxy service and self-signed SSL certificates (if you have not yet acquired certs from an approved certificate provider). As an example, you can refer to [AWS Route53](http://docs.aws.amazon.com/Route53/latest/DeveloperGuide/registrar.html) to learn how to setup a domain there. If you have not yet acquired a domain, you can still proceed with just self-signed certificates but they will have to be uploaded to AWS IAM, as opposed to AWS Certificate Manager.
 
 Upload your certificates to the AWS certificate manager service in your region.
 1. Click "import certificate"
@@ -20,14 +20,14 @@ Upload your certificates to the AWS certificate manager service in your region.
 3. Copy the certificate private RSA key into the "Certificate private key" text field.
 4. Take note of the Amazon Resource Name (ARN) for the uploaded certificate as this is required to assign the x509 certificates to the Elastic Load Balancer (ELB) for the public reverse proxy.
 
-#### For assistance with generating self-signed certificates and uploading them to AWS certificate manager, please refer to the [auxiliary scripts here](https://github.com/Accenture/adop-docker-compose/tree/master/provision/aws/ssl)
+#### For assistance with generating self-signed certificates and uploading them to AWS IAM (as an alternative to Certificate Manager), you can refer to the [auxiliary scripts here](https://github.com/Accenture/adop-docker-compose/tree/master/provision/aws/ssl)
 
 ## Deployment Instructions
 
 The following provides a high-level overview of the steps required to deploy the outer proxy service.
 
 1. In the AWS CloudFormation service launch the `public-proxy-s3-bucket.yaml` template.
-2. From this repository folder copy `config/proxy/sites-enabled/` into the created S3 Bucket into a 'conf/sites-enabled' folder and apply an AWS authenticated user read only policy to the files.
+2. From this repository folder copy `config/proxy/sites-enabled/` into the created S3 Bucket into a 'conf/sites-enabled' folder and apply an [AWS authenticated user read only policy](http://docs.aws.amazon.com/AmazonS3/latest/dev/using-iam-policies.html) to the files.
 3. In the AWS CloudFormation service launch the `public-proxy-security-group.yaml` template. Take note of the proxy security group name.
 4. In the AWS CloudFormation service launch the `public-proxy.yaml` template. Take note of the AWS ELB domain name.
 
@@ -69,15 +69,13 @@ The following provides a high-level overview of the steps required to deploy the
 |-----------|-------------|
 | BaseVpcId | VPC ID of where the security group will be created |
 | PublicSubnets| Comma-delimited list of public subnets to deploy the proxy |
-| VpnSecurityGroup | Vpn Security Group for administrating EC2 instances|
 | SSLCertificateARN | ARN of the SSL certificate to use for the ELB. Note: ELB Offloads SSL for the outer proxy. |
 | OuterProxyClusterSize | Desired number of nodes in the outer proxy ASG. |
 | OuterProxyKeyPairName | Outer proxy keypair name. |
 | PublicProxySG | ID of public facing proxy SG |
 | ProxyInstanceType| Proxy instance type. |
-| InternalProxyDnsName | The internal proxy DNS name/address (your ADOP/C proxy private IP) |
-| NATGatewayIdEipIP1 | NAT Gateway Elastic IP IPv4 Address and Cidr 1 e.g. 54.1.1.1/32 (output of the public network CloudFormation) |
-| NATGatewayIdEipIP2 | NAT Gateway Elastic IP IPv4 Address and Cidr 2 e.g. 54.2.3.4/32 (output of the public network CloudFormation)
+| InternalProxyDnsName | The internal DNS name/IP address (your ADOP/C private IP) |
+| WhitelistCIDR | The CIDR range from which access to the public ELB is restricted e.g. 54.1.1.1/32, 0.0.0.0/0 (Ideally this should be the VPC CIDR range) |
 | VpcAvailabilityZones | Comma-delimited list of Two Availability zones of the public subnets in the VPC. |
 | ProxyConfigS3BucketName | Proxy Configuration S3 Bucket Name. |
 | ProxyConfigS3BucketPath |  Proxy configuration S3 Bucket path. Default "conf" |

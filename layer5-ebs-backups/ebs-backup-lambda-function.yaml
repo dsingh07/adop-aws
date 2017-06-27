@@ -8,10 +8,10 @@ Parameters:
     Description: "Name of the Lambda function for EBS backup"
     Type: String
   EC2TagName:
-    Description: "Tag name used by the EC2 instance/s that will be backed up"
+    Description: "The key name of tag attached to the EC2 instance/s that will be backed up."
     Type: String
   EC2TagValue:
-    Description: "Tag value used by the EC2 instance/s that will be backed up"
+    Description: "The value of the tag attached to the EC2 instance/s that will be backed up."
     Type: String
   EventRuleSchedule:
     Description: "Cron expression that will determine when the Lambda function will run. Example: 'cron(0 23 * * ? *)'"

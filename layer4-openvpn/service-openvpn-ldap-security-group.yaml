@@ -6,10 +6,10 @@ Description: |
 
 Parameters:
   OpenVPNSG:
-    Description: SecurityGroup for OpenVPN (output from the OpenVPN CloudFormation script)
+    Description: Security Group for OpenVPN (output from the OpenVPN CloudFormation script)
     Type: AWS::EC2::SecurityGroup::Id
   LDAPSG:
-    Description: SecurityGroup for LDAP (SecurityGroup your LDAP instance is running in e.g. ADOP/C SecurityGroup)
+    Description: Security Group your LDAP instance is running in e.g. ADOP/C SecurityGroup
     Type: AWS::EC2::SecurityGroup::Id
 
 Resources:
