@@ -351,8 +351,8 @@ Resources:
         -
           DeviceName: "/dev/sda2"
           Ebs:
-            DeleteOnTermination: "true"
-            VolumeSize: 50
+            DeleteOnTermination: "false"
+            VolumeSize: 30
             VolumeType: "gp2"
       InstanceType:
         Ref: ProxyInstanceType

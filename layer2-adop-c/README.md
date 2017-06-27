@@ -1,6 +1,6 @@
 # ADOP/C Service
 
-The template here launches an ADOP/C in a private subnet.
+The template here launches an ADOP/C in a private subnet, with all Docker data externalised on EBS volumes.
 
 # Using this template 
 
@@ -21,6 +21,8 @@ In the AWS CloudFormation service launch the `service-adop-c.json'.
 | VPCSubnet | Private subnet ID of your stack (ensure a NAT gateway is attached) |
 | KeyName | Key-pair name to use. Note : Make sure you choose a key which you have. |
 | NtpRegion | The geographical NTP region where your NTP server is located (can be a continent or a country). This will appear in your /etc/ntp.conf file such as "server [1:4].<NtpRegion>.pool.ntp.org". Please refer here http://www.pool.ntp.org/en/ |
+
+#### Note: This template creates EBS volumes which are set to not terminate on deletion of this template. You must manually go into AWS -> EC2 -> Volumes and delete orphaned volumes.
 
 # CloudFormation
 

@@ -90,6 +90,8 @@ The following provides a high-level overview of the steps required to deploy the
 |--------|-------------|
 | ElbAddress | Elastic Load Balancer Address |
 
+#### Note: This template creates EBS volumes which are set to not terminate on deletion of this template. You must manually go into AWS -> EC2 -> Volumes and delete orphaned volumes.
+
 # CloudFormation
 
 The service uses the AWS CloudFormation service to provision the resource required for the Outer proxy service.

@@ -1,6 +1,6 @@
 # EBS Backup Lambda Function
 
-The template here creates lambda function for creating EBS backups
+The template here creates the lambda function for creating EBS backups.
 
 # Using this template 
 

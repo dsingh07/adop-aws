@@ -80,7 +80,7 @@ Note: Take note of the outputs of executed CloudFormation templates as they will
 
 | Parameter | Description |
 |-----------|-------------|
-| BaseVpcId | VPC ID of where the security group will be created. |
+| BaseVpcId | VPC ID of where the private subnet will be created. |
 | SubnetCidr| IDR Range for the private subnet. Note - Make sure the range is within the CIDR range of the VPC we have choosen with BaseVpcId and does not clash with eny existing subnets in this VPC. |
 | NATGatewayId | ID of a NAT Gateway (from the outputs of the public network CloudFormation). |
 | AvailabilityZone | Availability zone to launch the subnet. |
