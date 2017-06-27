@@ -86,10 +86,6 @@ Parameters:
       Please refer here http://www.pool.ntp.org/en/
     Type: String
     Default: europe
-  HostOs:
-    Description: The operating system family of your host
-    Type: String
-    Default: centos
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -126,7 +122,6 @@ Metadata:
           default: NTP Configuration
         Parameters:
           - NtpRegion
-          - HostOs
     ParameterLabels:
       BaseVpcId:
         default: "Base VPC ID"
@@ -385,10 +380,10 @@ Resources:
           gpgkey=https://yum.dockerproject.org/gpg
           EOF
 
-          yum -y install lvm2 git docker-engine-1.10.3-1.el7.centos.x86_64 ntp
+          yum -y install lvm2 git docker-engine-1.12.6-1.el7.centos.x86_64 ntp
           
           echo '################## Configuring NTP ##################'
-          sed -i "s/${HostOs}/${NtpRegion}/g" /etc/ntp.conf
+          sed -i "s/centos/${NtpRegion}/g" /etc/ntp.conf
           systemctl start ntpd
           systemctl enable ntpd
           systemctl status ntpd
@@ -410,7 +405,7 @@ Resources:
           lvcreate -l 95%VG -n data vg-docker
           lvcreate -l 5%VG -n metadata vg-docker
 
-          echo "################## Configurting Docker Daemon ##################"
+          echo "################## Configuring Docker Daemon ##################"
 
           sed -i 's/ExecStart\\(.*\\)$/ExecStart\\1 --storage-driver=devicemapper --storage-opt dm.datadev=\\/dev\\/vg-docker\\/data --storage-opt dm.metadatadev=\\/dev\\/vg-docker\\/metadata/g' /usr/lib/systemd/system/docker.service
           systemctl daemon-reload && systemctl restart docker

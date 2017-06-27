@@ -83,7 +83,6 @@ The following provides a high-level overview of the steps required to deploy the
 | ProxyConfigS3BucketPath |  Proxy configuration S3 Bucket path. Default "conf" |
 | ProxyConfigS3BucketRegion | S3 Bucket region. |
 | NtpRegion | The geographical NTP region where your NTP server is located (can be a continent or a country). This will appear in your /etc/ntp.conf file such as "server [1:4].<NtpRegion>.pool.ntp.org". Please refer here http://www.pool.ntp.org/en/ |
-| HostOs | The operating system family of your host e.g. centos, debian etc. This value will be substituted in your ntp.conf file during cloud-init. |
 
 #### Outputs
 
