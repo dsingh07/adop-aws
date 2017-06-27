@@ -207,6 +207,12 @@ Resources:
         -
           Key: "Name"
           Value: !Join [ "-", [ !Ref "AWS::StackName", "Public", "ELB", "SG" ] ]
+        - Key: Service
+          Value: ADOP-C
+        - Key: NetworkTier
+          Value: public
+        - Key: "ServiceComponent"
+          Value: "proxy"
 
   OuterProxySG:
     Type: AWS::EC2::SecurityGroup

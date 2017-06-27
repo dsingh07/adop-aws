@@ -443,23 +443,8 @@ Resources:
           Key: "ServiceComponent"
           Value: "applicationService"
         -
-          Key: "DeploymentType"
-          Value: "shared"
-        -
-          Key: "client"
-          Value: "managed"
-        -
           Key: "NetworkTier"
           Value: "public"
-        -
-          Key: "ShutDownSchedule"
-          Value: "never"
-        -
-          Key: "User"
-          Value: "openvpnas"
-        -
-          Key: "Port"
-          Value: "22"
 
   OpenVPNEipAssociation:
     Type: "AWS::EC2::EIPAssociation"
