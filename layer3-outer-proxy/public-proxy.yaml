@@ -365,7 +365,7 @@ Resources:
 
           echo "################## Creating volumes ##################"
           pvcreate /dev/xvdb
-          vgcreate vg-docker /dev/xvdb\n
+          vgcreate vg-docker /dev/xvdb
           while [ $(lvs vg-docker/data &> /dev/null; echo $?) -ne 0 ]; do lvcreate -l 95%VG -n data vg-docker; done
           while [ $(lvs vg-docker/metadata &> /dev/null; echo $?) -ne 0 ]; do lvcreate -l 5%VG -n metadata vg-docker; done
           
