@@ -11,6 +11,7 @@ Metadata:
         Parameters:
           - AdopUsername
           - AdopUserPassword
+          - SecretS3BucketStore
       -
         Label:
           default: Network Configuration
@@ -44,6 +45,9 @@ Parameters:
     MinLength: '8'
     AllowedPattern: (?!password|Password)[A-Za-z0-9]*([a-zA-Z]+[0-9]+|[0-9]+[a-zA-Z]+)
     ConstraintDescription: Password must contain only letters and numbers, it must contain at least one number, and cannot contain your username or word "password".
+  SecretS3BucketStore:
+    Description: Name of a S3 bucket where your platform secrets file will be kept temporarily. NOTE - Delete this file once you have obtained a copy of it.
+    Type: String    
   VpcID:
     Description: VPC ID where your instance will be created
     Type: AWS::EC2::VPC::Id
@@ -125,6 +129,46 @@ Resources:
         IpProtocol: udp
         ToPort: '25826'
 
+  S3UploadRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+      Path: "/"
+    Type: AWS::IAM::Role
+
+  S3UploadRoleProfile:
+    Properties:
+      Path: "/"
+      Roles:
+      - Ref: S3UploadRole
+    Type: AWS::IAM::InstanceProfile
+
+  S3UploadRolePolicy:
+    Properties:
+      PolicyDocument:
+        Statement:
+        - Action:
+          - s3:GetObject
+          - s3:ListBucket
+          - s3:PutObject
+          Effect: Allow
+          Resource:
+          - Fn::Join:
+            - ''
+            - - "arn:aws:s3:::"
+              - Ref: SecretS3BucketStore
+              - "/*"
+      PolicyName: S3Upload
+      Roles:
+      - Ref: S3UploadRole
+    Type: AWS::IAM::Policy
+
   ADOP5Ec2Instance:
     Type: AWS::EC2::Instance
     Properties:
@@ -154,6 +198,8 @@ Resources:
         - RegionMap
         - Ref: AWS::Region
         - 'AMI'
+      IamInstanceProfile:
+        Ref: S3UploadRoleProfile
       InstanceType: m4.xlarge
       KeyName:
         Ref: KeyName
@@ -219,9 +265,10 @@ Resources:
           ntpstat          
 
           echo '============================== Installing AWS CLI ============================='
-          wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-          rpm -Uvh epel-release-6-8.noarch.rpm
-          easy_install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
+          wget https://bootstrap.pypa.io/get-pip.py
+          python get-pip.py
+          pip install --upgrade --user awscli
+          export PATH=~/.local/bin:$PATH
           
           echo '=========================== Installing Docker Compose =========================='
           curl -L https://github.com/docker/compose/releases/download/1.7.1/docker-compose-`uname -s`-`uname -m` > /usr/bin/docker-compose
@@ -256,7 +303,7 @@ Resources:
           echo '=========================== Setting up ADOP-C =========================='
           until [[ $(curl -X GET -s ${!INITIAL_ADMIN_USER}:${!INITIAL_ADMIN_PASSWORD_PLAIN}@${!PRIVATE_IP}/jenkins/job/Load_Platform/lastBuild/api/json?pretty=true|grep result|cut -d$' ' -f5|sed 's|[^a-zA-Z]||g') == SUCCESS ]]; do echo "Load_Platform job not finished, sleeping for 5s"; sleep 5; done
           ./adop target set -t http://${!PRIVATE_IP} -u ${!INITIAL_ADMIN_USER} -p ${!INITIAL_ADMIN_PASSWORD_PLAIN}
-          cat platform.secrets.sh
+          aws s3 cp platform.secrets.sh s3://${SecretS3BucketStore}/platform.secrets.sh
           set +e
           
           echo "=========================== ADOP-C setup complete ==========================="

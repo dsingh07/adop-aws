@@ -96,13 +96,12 @@ The service uses the AWS CloudFormation service to provision the resource requir
 | OpenVpnServerFQDN | The fully-qualified domain name (FQDN) for the OpenVPN to use (e.g. vpn.example.com). Use the ElasticIP IPv4 address if you do not have a domain name. Leave this parameter blank if you have opted for an auto-assigned IPv4 address.|
 | OpenVPNKeyPair | The OpenVPN Key pair name. |
 | OpenVpnLicenseType | The OpenVPN License type. See OpenVPN Access Server AMI in the market place for AWS charges. Options: Bring your own license (BYOL), 2/10/25/50/100 connected devices respectively. |
-| VpnIpWhiteListCidr | The Cidr range of IPs to whitelist. By default the VPN is open to the world. |
 | OpenVpnAdminUserUsername | The OpenVPN service admin user username. |
 | OpenVpnAdminUserPassword | The OpenVPN service admin user password. Please use a complex password as this is a local system user that can administer the VPN. |
 | LdapServerURL | The LDAP server or proxy endpoint e.g. host:389 |
 | LdapSSLEnabled | Connect to LDAP via SSL. Select 'never' if SSL is not enabled else 'always'. |
 | LdapBindDn | The LDAP server BindDn (by default for ADOP/C, this is cn=admin,dc=ldap,dc=example,dc=com) |
-| LdapBindDnPassword | LDAP server Admin bind DN password (look at the system log from the ADOP/C EC2 instance from the EC2 console where LDAP_PWD should be echoed the bottom of the log output) |
+| LdapBindDnPassword | LDAP server Admin bind DN password (The value of LDAP_PWD in your platform.secrets.sh file) |
 | LdapUsersBaseDn | Users base distinguished name. |
 | LdapLoginAttribute | The LDAP login attribute from the LDAP directory schema. |
 | LdapVpnGroupMembership | The LDAP VPN group membership query (e.g. memberOf=cn=vpn,ou=groups,dc=ldap,dc=example,dc=com) Leave this parameter empty if you do not want to restrict access to the Open VPN from a particular group. |

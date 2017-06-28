@@ -27,7 +27,7 @@ Upload your certificates to the AWS certificate manager service in your region.
 The following provides a high-level overview of the steps required to deploy the outer proxy service.
 
 1. In the AWS CloudFormation service launch the `public-proxy-s3-bucket.yaml` template.
-2. From this repository folder copy `config/proxy/sites-enabled/` into the created S3 Bucket and apply an [AWS authenticated user read only policy](http://docs.aws.amazon.com/AmazonS3/latest/dev/using-iam-policies.html) to the files. Take note of the S3 Bucket name and path to your base.conf file.
+2. From this repository folder copy `config/proxy/sites-enabled/base.conf` into the created S3 Bucket and apply an [AWS authenticated user read only policy](http://docs.aws.amazon.com/AmazonS3/latest/dev/using-iam-policies.html) to the files. Take note of the S3 Bucket name and path to your base.conf file.
 3. In the AWS CloudFormation service launch the `public-proxy-security-group.yaml` template. Take note of the proxy security group name.
 4. In the AWS CloudFormation service launch the `public-proxy.yaml` template. Take note of the AWS ELB domain name.
 

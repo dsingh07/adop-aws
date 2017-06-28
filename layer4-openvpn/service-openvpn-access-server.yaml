@@ -105,7 +105,7 @@ Parameters:
     Type: String
   LdapBindDnPassword:
     Description: |
-      LDAP server Admin bind DN password (look at the system log from the ADOP/C EC2 instance from the EC2 console where LDAP_PWD should be echoed at the bottom of the log output)
+      LDAP server Admin bind DN password (The value of LDAP_PWD in your platform.secrets.sh file)
     Type: String
     NoEcho: true
   LdapUsersBaseDn:

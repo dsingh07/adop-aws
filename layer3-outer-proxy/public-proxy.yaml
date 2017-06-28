@@ -123,7 +123,7 @@ Metadata:
       OuterProxyClusterSize:
         default: "Outer Proxy Desired Size"
       OuterProxyKeyPairName:
-        default: "Outer Proxy Instance Kaypair"
+        default: "Outer Proxy Instance Keypair"
       ProxyInstanceType:
         default: "Outer Proxy Instance Type"
       PublicProxySG:
