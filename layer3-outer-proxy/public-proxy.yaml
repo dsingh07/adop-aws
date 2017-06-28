@@ -45,11 +45,14 @@ Parameters:
     Description: |
       The internal DNS name/address (your ADOP/C private IP)
     Default: ""
-  WhitelistCIDR:
-    Description: |
-      The CIDR range from which access to the public ELB is restricted e.g. 54.1.1.1/32, 0.0.0.0
-    Type: String
-    Default: ""
+  NATGatewayIdEipIP1:    
+     Description: |    
+       NAT Gateway Elastic IP IPv4 Address and /32 Cidr 1 e.g. 54.1.1.1/32 (output of the pre-requisite EIP CloudFormation)
+     Type: String
+  NATGatewayIdEipIP2:    
+     Description: |    
+       NAT Gateway Elastic IP IPv4 Address and /32 Cidr 2 e.g. 54.1.1.1/32 (output of the pre-requisite EIP CloudFormation)
+     Type: String  
   VpcAvailabilityZones:
     Description: |
       Comma-delimited list of Two Availability zones of the public subnets in the VPC.
@@ -60,14 +63,9 @@ Parameters:
       Proxy Configuration S3 Bucket Name.
     Type: String
     Default: ""
-  ProxyConfigS3BucketPath:
+  ProxyConfigS3Url:
     Description: |
-      Proxy configuration S3 Bucket path.
-    Type: String
-    Default: "conf"
-  ProxyConfigS3BucketRegion:
-    Description: |
-      S3 Bucket region.
+      S3 URL of your base.conf file in the format s3://<BUCKET_NAME>/<DIRECTORY_PATH>/base.conf
     Type: String
     Default: ""
   NtpRegion:
@@ -98,14 +96,14 @@ Metadata:
           - OuterProxyKeyPairName
           - ProxyInstanceType
           - PublicProxySG
-          - ProxyConfigS3BucketPath
           - ProxyConfigS3BucketName
-          - ProxyConfigS3BucketRegion
+          - ProxyConfigS3Url
       -
         Label:
           default: "Security Groups"
         Parameters:
-          - WhitelistCIDR
+          - NATGatewayIdEipIP1
+          - NATGatewayIdEipIP2
       -
         Label:
           default: NTP Configuration
@@ -130,14 +128,16 @@ Metadata:
         default: "Outer Proxy Instance Type"
       PublicProxySG:
         default: "Proxy SG ID"
-      ProxyConfigS3BucketPath:
-        default: "Proxy Config S3 Bucket path"
       ProxyConfigS3BucketName:
         default: "Proxy Config S3 Bucket name"
-      ProxyConfigS3BucketRegion:
-        default: "Proxy Config S3 Bucket region"
-      WhitelistCIDR:
-        default: "CIDR range from which public ELB can be accessed"
+      ProxyConfigS3Url:
+        default: "S3 URL of your base.conf file"
+      NtpRegion:
+        default: "Geographical region of your NTP server"
+      NATGatewayIdEipIP1:
+        default: "NAT Gateway ID 1 IP CIDR"
+      NATGatewayIdEipIP2:
+        default: "NAT Gateway ID 2 IP CIDR"
 
 Mappings:
   RegionMap:
@@ -172,14 +172,26 @@ Resources:
           IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp:
-            Ref: WhitelistCIDR
+          SourceSecurityGroupId:
+            Ref: NATGatewayIdEipIP1
         -
           IpProtocol: tcp
           FromPort: 443
           ToPort: 443
-          CidrIp:
-            Ref: WhitelistCIDR
+          SourceSecurityGroupId:
+            Ref: NATGatewayIdEipIP1
+        -
+          IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId:
+            Ref: NATGatewayIdEipIP2
+        -
+          IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          SourceSecurityGroupId:
+            Ref: NATGatewayIdEipIP2
       Tags:
         -
           Key: "Name"
@@ -269,12 +281,13 @@ Resources:
         - Action:
           - s3:GetObject
           - s3:ListBucket
+          Effect: Allow
           Resource:
           - Fn::Join:
             - ''
-            - - 'arn:aws:s3:::'
+            - - "arn:aws:s3:::"
               - Ref: ProxyConfigS3BucketName
-          Effect: Allow
+              - "/*"
       PolicyName: S3Download
       Roles:
       - Ref: S3DownloadRole
@@ -376,9 +389,8 @@ Resources:
 
           echo "################## Running Containers ##################"
 
-          mkdir -p /data/config/proxy
-          cd /data/config/proxy/
-          aws s3 cp --recursive s3://${ProxyConfigS3BucketName}/${ProxyConfigS3BucketPath}/ . --region ${ProxyConfigS3BucketRegion}
+          mkdir -p /data/config/proxy/sites-enabled && cd /data/config/proxy/sites-enabled
+          aws s3 cp ${ProxyConfigS3Url} base.conf && cd ..
           chmod -R 777 ./*
           docker run --restart="always" -p 80:80 -d -v $(pwd)/sites-enabled/:/usr/local/nginx/sites-enabled/ -e TARGET=${InternalProxyDnsName} --name=outer-proxy-nginx -d accenture/adop-outer-proxy:0.2.1
 
