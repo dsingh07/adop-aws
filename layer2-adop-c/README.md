@@ -16,7 +16,7 @@ In the AWS CloudFormation service launch the `service-adop-c.json'.
 |-----------|-------------|
 | AdopUsername | ADOP admin account username. Username can not be set to 'admin' or 'Admin' and it must contain only letters and numbers. Minimum length is 3. |
 | AdopUserPassword | ADOP admin account password. Must be at least 8 characters long and contain at least one number, and cannot contain word "password" or your username |
-| SecretS3BucketStore | Name of an S3 bucket where your platform secrets file will be kept temporarily so that it can be obtained from outside the host. NOTE - Delete this file once you have obtained a copy of it. | 
+| SecretS3BucketStore | Name of an S3 bucket where your platform secrets file will be kept temporarily so that it can be obtained from outside the host. NOTE - Delete this file once you have obtained a copy of it. Read [here](http://docs.aws.amazon.com/AmazonS3/latest/gsg/CreatingABucket.html) to learn about creating an S3 bucket. |
 | VpcID | VPC ID where your instance will be created | 
 | VPCCidr | VPC Cidr range to allow connection to the instance from within the VPC. | 
 | VPCSubnet | Private subnet ID of your stack (ensure a NAT gateway is attached) |

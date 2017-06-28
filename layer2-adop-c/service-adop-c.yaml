@@ -323,4 +323,4 @@ Resources:
 Outputs:
   ReleaseNote:
     Description: This is your starting point, please copy this URL into your web browser if you are behind a VPN.
-    Value: !Join ["", [ "http://", !GetAtt ADOP5Ec2Instance.PrivateIp, ":/" ]]
+    Value: !Join ["", [ "http://", !GetAtt ADOP5Ec2Instance.PrivateIp, "/" ]]
