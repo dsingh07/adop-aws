@@ -172,25 +172,25 @@ Resources:
           IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          SourceSecurityGroupId:
+          CidrIp:
             Ref: NATGatewayIdEipIP1
         -
           IpProtocol: tcp
           FromPort: 443
           ToPort: 443
-          SourceSecurityGroupId:
+          CidrIp:
             Ref: NATGatewayIdEipIP1
         -
           IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          SourceSecurityGroupId:
+          CidrIp:
             Ref: NATGatewayIdEipIP2
         -
           IpProtocol: tcp
           FromPort: 443
           ToPort: 443
-          SourceSecurityGroupId:
+          CidrIp:
             Ref: NATGatewayIdEipIP2
       Tags:
         -
