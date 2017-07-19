@@ -3,7 +3,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
 Description: |
-  OpenVPN Access Server 2.1.4 (10/26/2016) Service Template for the Accenture DevOps Platform (ADOP) Community Edition.
+  OpenVPN Access Server 2.1.4 (10/26/2016) Service Template for the DevOps Platform (ADOP).
 
 Parameters:
   ElasticIP:
